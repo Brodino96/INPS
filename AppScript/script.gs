@@ -14,7 +14,7 @@ function doPost(e) {
         addData(message, tableType)
         return ContentService.createTextOutput("Dati aggiunti correttamente!")
     } else {
-        return ContentService.createTextOutput("Errore: Parametri mancanti.")
+        return sendDiscordMessage("Errore, parametri mancanti")
     }
 }
 
@@ -40,7 +40,7 @@ function addData(message, tableType) {
             foglio.getRange(lastRow, firstTable[2]).setValue(ora)
             foglio.getRange(lastRow, firstTable[3]).setValue(parseFloat(denaro))
         } else {
-            SpreadsheetApp.getUi().alert("Messaggio non valido per la Prima Tabella.")
+            sendDiscordMessage(`Messaggio non valido per la tabella fatture: \`${message}\``)
         }
 
     } else if (tableType === "blip") {
@@ -60,13 +60,17 @@ function addData(message, tableType) {
             foglio.getRange(lastRow, secondTable[2]).setValue(date)
             foglio.getRange(lastRow, secondTable[3]).setValue(parseFloat(denaro))
         } else {
-            SpreadsheetApp.getUi().alert("Messaggio non valido per la Seconda Tabella.")
+            sendDiscordMessage(`Messaggio non valido per la tabella blip: \`${message}\``)
+
         }
     } else {
-        SpreadsheetApp.getUi().alert("Tipo di tabella non valido. Usa 'fatture' o 'blip'.")
+        sendDiscordMessage(`Se stai leggendo questo messaggio vuol dire che qualcosa è andato incredibilmente storto`)
+
     }
 }
 
+function sendDiscordMessage(msg) {
+}
 
 
 function test() {
