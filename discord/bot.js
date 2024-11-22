@@ -1,8 +1,9 @@
 // -------------------------------------------------------------------- //
 
-require("dotenv").config()
-const { Client, GatewayIntentBits } = require("discord.js")
-const axios = require("axios")
+require("dotenv").config() // Keep your info secured
+const { Client, GatewayIntentBits } = require("discord.js") // discord bot
+const axios = require("axios") // better http posts
+const http = require("http") // webserver
 
 // -------------------------------------------------------------------- //
 
@@ -11,6 +12,11 @@ const webServerUrl = process.env.WEBSERVER_URL
 const fatture_channel = process.env.FATTURE_ID
 const blip_channel = process.env.BLIP_ID
 const debugDiscordChat = process.env.DEBUG_DISCORD_CHAT
+
+// -------------------------------------------------------------------- //
+
+const host = "localhost"
+const port = 8000
 
 // -------------------------------------------------------------------- //
 
@@ -25,9 +31,13 @@ const client = new Client({
 client.once("ready", () => {
     client.channels.cache.get(debugDiscordChat).send("# Bot online!")
     console.log("Bot online!")
+
+    deployWebserver()
 })
 
 client.on("messageCreate", async (message) => {
+
+    console.log(`Message detected`)
 
     var channel = message.channel.id
 
@@ -39,6 +49,7 @@ client.on("messageCreate", async (message) => {
     var type = ""
     if (channel == fatture_channel) { type = "fatture" }
     if (channel == blip_channel) { type = "blip" }
+    console.log(`The message is of type: ${type}`)
 
     axios.post(webServerUrl, { message: embedContent, tableType: type})
     .then(response => console.log(response))
@@ -56,3 +67,16 @@ client.on("messageCreate", async (message) => {
 })
 
 client.login(botToken)
+
+async function deployWebserver () {
+
+    const requestListener = function (req, res) {
+        res.writeHead(200)
+        res.end("My first server!")
+    }
+
+    const server = http.createServer(requestListener);
+    server.listen(port, host, () => {
+        console.log(`Server is running on http://${host}:${port}`);
+    })
+}
