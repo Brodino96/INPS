@@ -1,51 +1,52 @@
 // -------------------------------------------------------------------- //
 
 require("dotenv").config()
-
-// -------------------------------------------------------------------- //
-
-const { Client, Intents } = require('discord.js')
-const axios = require('axios')
+const { Client, GatewayIntentBits } = require('discord.js')
 
 // -------------------------------------------------------------------- //
 
 const botToken = process.env.DISCORD_TOKEN
 const webServerUrl = process.env.WEBSERVER_URL
+const fatture_channel = process.env.FATTURE_ID
+const blip_channel = process.env.BLIP_ID
 
-// ID dei canali da cui il bot deve leggere i messaggi
-const channelId1 = 'CHANNEL_ID_1'; // Sostituisci con l'ID del primo canale
-const channelId2 = 'CHANNEL_ID_2'; // Sostituisci con l'ID del secondo canale
+// -------------------------------------------------------------------- //
 
-// URL del server web dove inviare i messaggi
-// Crea una nuova istanza del client Discord
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
-
-// Evento che si attiva quando il bot è pronto
-client.once('ready', () => {
-    console.log('Bot è online!');
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent
+    ]
 });
 
-// Evento che si attiva quando il bot riceve un messaggio
-client.on('messageCreate', async (message) => {
-    // Controlla se il messaggio proviene dai canali che ci interessano
-    if (message.channel.id === channelId1 || message.channel.id === channelId2) {
-        // Verifica se il messaggio è embeddato
-        if (message.embeds.length > 0) {
-            // Estrai il contenuto dell'embed (qui assumiamo che il contenuto sia nel campo "description")
-            const embedContent = message.embeds[0].description;
+client.once("ready", () => {
+    console.log("Bot è online!")
+})
 
-            // Invia il contenuto al web server
-            try {
-                const response = await axios.post(webServerUrl, {
-                    content: embedContent
-                });
-                console.log('Messaggio inviato al server:', response.data);
-            } catch (error) {
-                console.error('Errore nell\'invio al server:', error);
-            }
-        }
-    }
-});
+client.on("messageCreate", async (message) => {
 
-// Effettua il login del bot
-client.login(botToken);
+    var channel = message.channel.id
+
+    if (channel != fatture_channel & channel != blip_channel ) { return }
+    if (message.embeds.length <= 0) { return }
+
+    const embedContent = message.embeds[0].description
+
+    var type = ""
+    if (channel == fatture_channel) { type = "fatture" }
+    if (channel == blip_channel) { type = "blip" }
+
+    fetch(webServerUrl, {
+        method: "POST",
+        body: new URLSearchParams({
+          "message": embedContent,
+          "tableType": type
+        })
+    })
+    .then(response => response.text())
+    .then(data => console.log(data))
+    .catch(error => console.error("Errore:", error))
+})
+
+client.login(botToken)
