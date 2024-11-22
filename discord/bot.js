@@ -1,9 +1,8 @@
 // -------------------------------------------------------------------- //
 
-require("dotenv").config() // Keep your info secured
-const { Client, GatewayIntentBits } = require("discord.js") // discord bot
-const axios = require("axios") // better http posts
-const http = require("http") // webserver
+import {Client, GatewayIntentBits} from "discord.js" // discord bot
+import axios from "axios"
+import Fastify from "fastify"
 
 // -------------------------------------------------------------------- //
 
@@ -12,11 +11,6 @@ const webServerUrl = process.env.WEBSERVER_URL
 const fatture_channel = process.env.FATTURE_ID
 const blip_channel = process.env.BLIP_ID
 const debugDiscordChat = process.env.DEBUG_DISCORD_CHAT
-
-// -------------------------------------------------------------------- //
-
-const host = "localhost"
-const port = 8000
 
 // -------------------------------------------------------------------- //
 
@@ -70,13 +64,19 @@ client.login(botToken)
 
 async function deployWebserver () {
 
-    const requestListener = function (req, res) {
-        res.writeHead(200)
-        res.end("My first server!")
+    const fastify = Fastify({ logger: true })
+
+    fastify.get("/", async function handler (request, reply) {
+        console.log(request)
+        return { hello: "world" }
+    })
+
+    // Run the server!
+    try {
+        await fastify.listen({ port: 8080 })
+    } catch (err) {
+        fastify.log.error(err)
+        process.exit(1)
     }
 
-    const server = http.createServer(requestListener);
-    server.listen(port, host, () => {
-        console.log(`Server is running on http://${host}:${port}`);
-    })
 }
