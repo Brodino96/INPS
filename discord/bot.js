@@ -70,11 +70,12 @@ async function deployWebserver () {
 
     fastify.post("/", async (request, reply) => {
         try {
-            const { message } = request.body
-            if (!message) {
-                return reply.status(400).send({ error: "Message is required" })
+            const { payload } = request.body
+            if (!payload) {
+                console.log("Payload missing")
+                return reply.status(400).send({ error: "Payload is required" })
             }
-            Notify.debug(message)
+            Notify.debug(payload)
             reply.send({ status: "success" })
 
         } catch (error) {
@@ -95,11 +96,11 @@ function deployNotifier() {
     Notify = {
         async debug(msg) {
             client.channels.cache.get(debugDiscord).send(msg)
-            console.log(msg)
+            console.log(`debug: ${msg}`)
         },
         async info(msg) {
             client.channels.cache.get(infoDiscord).send(msg)
-            console.log(msg)
+            console.log(`info: ${msg}`)
         }
     }
 }
