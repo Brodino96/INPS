@@ -15,6 +15,10 @@ const infoDiscord = process.env.INFO_DISCORD_CHAT
 
 // -------------------------------------------------------------------- //
 
+let Notify
+
+// -------------------------------------------------------------------- //
+
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -24,7 +28,10 @@ const client = new Client({
 })
 
 client.once("ready", () => {
-    console.log("# Bot online|")
+    console.log("Bot online")
+    client.channels.cache.get(debugDiscord).send("# Bot online!")
+
+    deployNotifier()
 
     deployWebserver()
 })
@@ -49,9 +56,9 @@ client.on("messageCreate", async (message) => {
         /*
         client.channels.cache.get(debugDiscordChat).send(
             `# ATTENZIONE\n## Si è verificato un errore con l'aggiunta di:\n\`${embedContent}\`\nall'interno della Google Sheet\n\`${error}\`\n<@299559814504251394>`
-        )
-        */
+        ) */
        Notify.debug(`# PORCODDIO\n## <@299559814504251394> SVEGLIATE CHE SI E' ROTTO QUALCOSA\n\`${embedContent}\`\nNON E' ARRIVATO SU GOOGLE SHEET\n\`${error}\``)
+       Notify.info(`# PORCODDIO\n## <@299559814504251394> SVEGLIATE CHE SI E' ROTTO QUALCOSA\n\`${embedContent}\`\nNON E' ARRIVATO SU GOOGLE SHEET\n\`${error}\``)
     })
 })
 
@@ -59,19 +66,17 @@ client.login(botToken)
 
 async function deployWebserver () {
 
-    const fastify = Fastify({ logger: true })
+    const fastify = Fastify({ logger: false })
 
-    fastify.post("/message", async (request, reply) => {
+    fastify.post("/", async (request, reply) => {
         try {
             const { message } = request.body
             if (!message) {
-                reply.status(400).send({ error: 'Message is required' })
-                return
+                return reply.status(400).send({ error: "Message is required" })
             }
-
             Notify.debug(message)
-    
-            reply.send({ status: "success", received: message })
+            reply.send({ status: "success" })
+
         } catch (error) {
             reply.status(500).send({ error: "An error occurred" })
         }
@@ -84,26 +89,17 @@ async function deployWebserver () {
         fastify.log.error(err)
         process.exit(1)
     }
-
-    // Run the server!
-    try {
-        await fastify.listen({ port: 8080 })
-    } catch (err) {
-        //fastify.log.error(err)
-        process.exit(1)
-    }
-
-    //Notify.debug(payload)
-
 }
 
-class Notify {
-    debug(msg) {
-        client.channels.cache.get(debugDiscord).send(msg)
-        console.log(msg)
-    }
-    info(msg) {
-        client.channels.cache.get(infoDiscord).send(msg)
-        console.log(msg)
+function deployNotifier() {
+    Notify = {
+        async debug(msg) {
+            client.channels.cache.get(debugDiscord).send(msg)
+            console.log(msg)
+        },
+        async info(msg) {
+            client.channels.cache.get(infoDiscord).send(msg)
+            console.log(msg)
+        }
     }
 }
