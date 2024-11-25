@@ -1,106 +1,82 @@
-// -------------------------------------------------------------------- //
+import { Client, TextChannel } from "discord.js-selfbot-v13" // discord bot
+import { TypedEventTarget } from 'typescript-event-target';
 
-import {Client, GatewayIntentBits} from "discord.js" // discord bot
-import axios from "axios"
-import Fastify from "fastify"
+const webServerUrl: string = process.env.WEBSERVER_URL!
+const fatture_channel: string = process.env.FATTURE_ID!
+const blip_channel: string = process.env.BLIP_ID!
+const debugDiscord: string = process.env.DEBUG_DISCORD_CHAT!
+const infoDiscord: string = process.env.INFO_DISCORD_CHAT!
 
-// -------------------------------------------------------------------- //
+export interface DiscordEvent {
+    newInvoice: CustomEvent<string>,
+    newBlip: CustomEvent<string>
+}
 
-const botToken = process.env.DISCORD_TOKEN
-const webServerUrl = process.env.WEBSERVER_URL
-const fatture_channel = process.env.FATTURE_ID
-const blip_channel = process.env.BLIP_ID
-const debugDiscord = process.env.DEBUG_DISCORD_CHAT
-const infoDiscord = process.env.INFO_DISCORD_CHAT
+export class DiscordBot extends TypedEventTarget<DiscordEvent> {
+    private client: Client = new Client();
 
-// -------------------------------------------------------------------- //
+    constructor() {
+        super();
+        this.client.once("ready", () => {
+            console.log("Bot online");
+            this.debug("# Bot online porco di dio")
+        })
 
-let Notify
+        this.client.on("messageCreate", async (message) => {
+            let channel: string = message.channel.id
+        
+            if (channel != fatture_channel && channel != blip_channel ) { return }
+            if (message.embeds.length <= 0) { return }
+        
+            const embedContent = message.embeds[0].description
 
-// -------------------------------------------------------------------- //
-
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent,
-    ]
-})
-
-client.once("ready", () => {
-    console.log("Bot online")
-    client.channels.cache.get(debugDiscord).send("# Bot online!")
-
-    deployNotifier()
-
-    deployWebserver()
-})
-
-client.on("messageCreate", async (message) => {
-
-    let channel = message.channel.id
-
-    if (channel != fatture_channel & channel != blip_channel ) { return }
-    if (message.embeds.length <= 0) { return }
-
-    const embedContent = message.embeds[0].description
-
-    let type
-    if (channel == fatture_channel) { type = "fatture" }
-    if (channel == blip_channel) { type = "blip" }
-    console.log(`The message is of type: ${type}`)
-
-    axios.post(webServerUrl, { message: embedContent, tableType: type})
-    .then(response => console.log(response))
-    .catch(function (error) {
-        /*
-        client.channels.cache.get(debugDiscordChat).send(
-            `# ATTENZIONE\n## Si è verificato un errore con l'aggiunta di:\n\`${embedContent}\`\nall'interno della Google Sheet\n\`${error}\`\n<@299559814504251394>`
-        ) */
-       Notify.debug(`# PORCODDIO\n## <@299559814504251394> SVEGLIATE CHE SI E' ROTTO QUALCOSA\n\`${embedContent}\`\nNON E' ARRIVATO SU GOOGLE SHEET\n\`${error}\``)
-       Notify.info(`# PORCODDIO\n## <@299559814504251394> SVEGLIATE CHE SI E' ROTTO QUALCOSA\n\`${embedContent}\`\nNON E' ARRIVATO SU GOOGLE SHEET\n\`${error}\``)
-    })
-})
-
-client.login(botToken)
-
-async function deployWebserver () {
-
-    const fastify = Fastify({ logger: false })
-
-    fastify.post("/", async (request, reply) => {
-        try {
-            const { payload } = request.body
-            if (!payload) {
-                console.log("Payload missing")
-                return reply.status(400).send({ error: "Payload is required" })
+            switch (channel) {
+                case fatture_channel:
+                    this.dispatchTypedEvent('newInvoice', new CustomEvent('newInvoice', {
+                        detail: embedContent!
+                    }));
+                    break;
+                case blip_channel:
+                    this.dispatchTypedEvent('newBlip', new CustomEvent('newBlip', {
+                        detail: embedContent!
+                    }));
+                    break;
+                default:
+                    this.debug("Ma che cazzo vordi?", embedContent)
             }
-            Notify.debug(payload)
-            reply.send({ status: "success" })
 
-        } catch (error) {
-            reply.status(500).send({ error: "An error occurred" })
-        }
-    })
 
-    try {
-        await fastify.listen({ port: 8080 })
-    } catch (err) {
-        Notify.debug(JSON.stringify(err))
-        fastify.log.error(err)
-        process.exit(1)
+        })
+    }
+
+    public async login(token: string) {
+        await this.client.login(token)
+    }
+
+
+    public async debug(...msg) {
+        await this.getDebugChannel().send(formatConsoleMessage(...msg))
+    }
+
+    public async info(...msg) {
+        this.getInfoDiscord().send(formatConsoleMessage(...msg))
+    }
+
+    private getDebugChannel(): TextChannel {
+        return this.client.channels.cache.get(debugDiscord) as TextChannel
+    }
+
+    private getInfoDiscord(): TextChannel {
+        return this.client.channels.cache.get(infoDiscord) as TextChannel
     }
 }
 
-function deployNotifier() {
-    Notify = {
-        async debug(msg) {
-            client.channels.cache.get(debugDiscord).send(msg)
-            console.log(`debug: ${msg}`)
-        },
-        async info(msg) {
-            client.channels.cache.get(infoDiscord).send(msg)
-            console.log(`info: ${msg}`)
+function formatConsoleMessage(...msgs): string {
+    return msgs.map(msg => {
+        if (typeof msg == "string") {
+            return msg
+        } else {
+            return JSON.stringify(msg)
         }
-    }
+    }).join(", ");
 }
