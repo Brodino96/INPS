@@ -2,21 +2,26 @@
   "name": "INPS",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/main.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prettify": "prettier --write src/google.ts"
+    "start": "bun run src/main.ts",
+    "bundle": "bun build src/main.ts --outdir ./dist --target bun --bytecode --minify --format esm --sourcemap"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/bun": "^1.1.13",
     "axios": "^1.7.7",
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
     "fastify": "^5.1.0",
     "googleapis": "^144.0.0",
-    "open": "^10.1.0",
-    "prettier": "^3.3.3"
+    "open": "^10.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.4",
+    "ffmpeg-static": "^5.2.0",
+    "typescript-event-target": "^1.1.1"
   }
 }
