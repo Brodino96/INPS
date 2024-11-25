@@ -1,0 +1,8 @@
+services:
+  inps:
+    build: .
+    ports:
+      - 8080:8080
+    volumes:
+      - ./auth:/usr/src/app/auth
+    env_file: ".env"

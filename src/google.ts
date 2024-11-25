@@ -8,15 +8,13 @@ import { type OAuth2Client } from "google-auth-library"
 // -------------------------------------------------------------------- //
 
 const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
-const TOKEN_PATH = "token.json"
+const TOKEN_PATH = "auth/token.json"
 
 // -------------------------------------------------------------------- //
 
 class AuthenticatedGoogleApi {
     private httpServer: FastifyInstance;
     protected oauth2Client: OAuth2Client;
-
-    private openListeners: {close: ()=>void}[] = [];
 
     constructor (httpServer: FastifyInstance) {
         this.httpServer = httpServer;
@@ -31,18 +29,10 @@ class AuthenticatedGoogleApi {
         const token = await fs.readFile(TOKEN_PATH, "utf-8");
         this.oauth2Client.setCredentials(JSON.parse(token));
     }
-
-    private closeOpenListeners() {
-        this.openListeners.forEach((listener)=>{
-            listener.close();
-        })
-        this.openListeners = [];
-    }
-
-    private async authWithServer() {
-        this.closeOpenListeners();
+    
+    private async initAuthServer() {
         console.log("Token file not found, logging in")
-        const authListener = this.httpServer.get("/auth_google", async (request, reply) => {
+        this.httpServer.get("/auth_google", async (request, reply) => {
             const authUrl = this.oauth2Client.generateAuthUrl({
                 access_type: "offline",
                 scope: SCOPES,
@@ -50,23 +40,16 @@ class AuthenticatedGoogleApi {
             reply.redirect(authUrl)
         })
 
-        this.openListeners.push(authListener);
-
         console.log(`Please go to ${process.env.URL}/auth_google`)
 
-        return new Promise((resolve)=>{
-            const callbackListener = this.httpServer.get("/outh_callback", async (request, reply) => {
-                const code = request.query!["code"];
+        this.httpServer.get("/outh_callback", async (request, reply) => {
+            const code = request.query!["code"];
 
-                const { tokens } = await this.oauth2Client.getToken(code)
-                this.oauth2Client.setCredentials(tokens)
-                await fs.writeFile(TOKEN_PATH, JSON.stringify(tokens))
+            const { tokens } = await this.oauth2Client.getToken(code)
+            this.oauth2Client.setCredentials(tokens)
+            await fs.writeFile(TOKEN_PATH, JSON.stringify(tokens))
 
-                reply.code(200).send("Logged in!")
-                resolve(null)
-            })
-            this.openListeners.push(callbackListener);
-            this.closeOpenListeners();
+            reply.code(200).send("Logged in!")
         })
     }
 
@@ -75,7 +58,7 @@ class AuthenticatedGoogleApi {
         if (await fs.exists(TOKEN_PATH)) {
             await this.authWithToken();
         } else {
-            await this.authWithServer();
+            await this.initAuthServer();
         }
     }
 }

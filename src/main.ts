@@ -8,9 +8,7 @@ class App {
     public discordBot: DiscordBot = new DiscordBot();
 
     constructor() {
-        this.httpServer = fastify({
-            logger: true   
-        });
+        this.httpServer = fastify();
         this.googleSheetApi = new SheetsGoogleApi(this.httpServer);
     }
 
@@ -29,6 +27,10 @@ class App {
         this.discordBot.addEventListener("newBlip", ({detail})=> {
             this.googleSheetApi.writeToSheets(detail, "blip")
         })
+        await this.httpServer.listen({
+            port: 8080,
+            host: "0.0.0.0"
+        });
     }
 }
 
