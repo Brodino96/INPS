@@ -98,7 +98,7 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
                     valueInputOption: "USER_ENTERED",
                     insertDataOption: "INSERT_ROWS",
                     responseValueRenderOption: "FORMATTED_VALUE",
-                    responseDateTimeRenderOption: "FORMATTED_STRING",
+                    responseDateTimeRenderOption: "RAW",
                     requestBody: {
                         values: values,
                     },
@@ -120,6 +120,8 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
     
             const [_, quantity, item, price] = match
             const adjustedPrice = price.replaceAll(".", ",")
+            console.log(`This is the defualt price: ${price}`)
+            console.log(`This is the fixed price: ${adjustedPrice}`)
             const values = [[ quantity, item, currentDate, adjustedPrice]]
     
             try {
@@ -129,7 +131,7 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
                     valueInputOption: "USER_ENTERED",
                     insertDataOption: "INSERT_ROWS",
                     responseValueRenderOption: "FORMATTED_VALUE",
-                    responseDateTimeRenderOption: "FORMATTED_STRING",
+                    responseDateTimeRenderOption: "RAW",
                     requestBody: {
                         values: values,
                     },
