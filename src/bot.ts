@@ -18,7 +18,7 @@ export class DiscordBot extends TypedEventTarget<DiscordEvent> {
     constructor() {
         super();
         this.client.once("ready", () => {
-            console.log("Bot online");
+            console.log("Bot onlineeee");
             this.debug("# Bot online")
         })
 
