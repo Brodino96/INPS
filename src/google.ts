@@ -95,6 +95,9 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
                     spreadsheetId: process.env.SPREADSHEET_ID,
                     range: "INPS!I3:L3",
                     valueInputOption: "USER_ENTERED",
+                    insertDataOption: "INSERT_ROWS",
+                    responseValueRenderOption: "FORMATTED_VALUE",
+                    responseDateTimeRenderOption: "FORMATTED_STRING",
                     requestBody: {
                         values: values,
                     },
@@ -121,7 +124,10 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
                 await this.sheet.spreadsheets.values.append({
                     spreadsheetId: process.env.SPREADSHEET_ID,
                     range: "INPS!N3:Q3",
-                    valueInputOption: "RAW",
+                    valueInputOption: "USER_ENTERED",
+                    insertDataOption: "INSERT_ROWS",
+                    responseValueRenderOption: "FORMATTED_VALUE",
+                    responseDateTimeRenderOption: "FORMATTED_STRING",
                     requestBody: {
                         values: values,
                     },
