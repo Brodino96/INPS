@@ -129,8 +129,7 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
                     range: "INPS!N3:Q3",
                     valueInputOption: "USER_ENTERED",
                     insertDataOption: "INSERT_ROWS",
-                    responseValueRenderOption: "FORMATTED_VALUE",
-                    responseDateTimeRenderOption: "RAW",
+                    responseValueRenderOption: "RAW",
                     requestBody: {
                         values: values,
                     },
