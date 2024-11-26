@@ -88,7 +88,8 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
             }
     
             const [_, name, price, , time] = match
-            const values = [[name, currentDate, time, price]]
+            const adjustedPrice = price.replaceAll(".", ",")
+            const values = [[name, currentDate, time, adjustedPrice]]
     
             try {
                 await this.sheet.spreadsheets.values.append({
@@ -118,7 +119,8 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
             }
     
             const [_, quantity, item, price] = match
-            const values = [[ quantity, item, currentDate, price]]
+            const adjustedPrice = price.replaceAll(".", ",")
+            const values = [[ quantity, item, currentDate, adjustedPrice]]
     
             try {
                 await this.sheet.spreadsheets.values.append({
