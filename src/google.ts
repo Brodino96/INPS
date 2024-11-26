@@ -97,12 +97,11 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
                     range: "INPS!I3:L3",
                     valueInputOption: "USER_ENTERED",
                     insertDataOption: "INSERT_ROWS",
-                    responseValueRenderOption: "FORMATTED_VALUE",
-                    responseDateTimeRenderOption: "RAW",
+                    responseValueRenderOption: "UNFORMATTED_VALUE",
                     requestBody: {
                         values: values,
                     },
-                }, {})
+                }, {});
         
                 console.log("Dati aggiunti correttamente!");
             } catch (error) {
@@ -129,7 +128,7 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
                     range: "INPS!N3:Q3",
                     valueInputOption: "USER_ENTERED",
                     insertDataOption: "INSERT_ROWS",
-                    responseValueRenderOption: "RAW",
+                    responseValueRenderOption: "UNFORMATTED_VALUE",
                     requestBody: {
                         values: values,
                     },
