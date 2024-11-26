@@ -120,9 +120,8 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
     
             const [_, quantity, item, price] = match
             const adjustedPrice = price.replaceAll(".", ",")
-            console.log(`This is the defualt price: ${price}`)
-            console.log(`This is the fixed price: ${adjustedPrice}`)
             const values = [[ quantity, item, currentDate, adjustedPrice]]
+            console.log(values)
     
             try {
                 await this.sheet.spreadsheets.values.append({
