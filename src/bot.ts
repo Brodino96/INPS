@@ -30,15 +30,19 @@ export class DiscordBot extends TypedEventTarget<DiscordEvent> {
         
             const embedContent = message.embeds[0].description
 
+            if (!embedContent) { return this.info("Il messaggio non conteneva testo embedato") }
+
+            message.react("🟢")
+
             switch (channel) {
                 case fatture_channel:
-                    this.dispatchTypedEvent('newInvoice', new CustomEvent('newInvoice', {
-                        detail: embedContent!
+                    this.dispatchTypedEvent("newInvoice", new CustomEvent("newInvoice", {
+                        detail: embedContent
                     }));
                     break;
                 case blip_channel:
-                    this.dispatchTypedEvent('newBlip', new CustomEvent('newBlip', {
-                        detail: embedContent!
+                    this.dispatchTypedEvent("newBlip", new CustomEvent("newBlip", {
+                        detail: embedContent
                     }));
                     break;
                 default:
