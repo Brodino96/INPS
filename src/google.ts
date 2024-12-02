@@ -72,7 +72,9 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
             version: "v4",
             auth: this.oauth2Client
         })
-
+    }
+    
+    public async test() {
         try {
             await this.sheet.spreadsheets.values.append({
                 spreadsheetId: process.env.SPREADSHEET_ID,
