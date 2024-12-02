@@ -27,9 +27,6 @@ class App {
         this.discordBot.addEventListener("newBlip", ({detail})=> {
             this.googleSheetApi.writeToSheets(detail, "blip")
         })
-
-        this.googleSheetApi.test()
-        
         await this.httpServer.listen({
             port: 8080,
             host: "0.0.0.0"

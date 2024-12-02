@@ -73,25 +73,6 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
             auth: this.oauth2Client
         })
     }
-    
-    public async test() {
-        try {
-            await this.sheet.spreadsheets.values.append({
-                spreadsheetId: process.env.SPREADSHEET_ID,
-                range: "INPS!T3:U3",
-                valueInputOption: "USER_ENTERED",
-                insertDataOption: "OVERWRITE",
-                responseValueRenderOption: "UNFORMATTED_VALUE",
-                requestBody: {
-                    values: [[ "ciao", "duce" ]],
-                },
-            }, {});
-    
-            console.log("Dati aggiunti correttamente!");
-        } catch (error) {
-            console.error("Errore durante l'inserimento dei dati:", error);
-        }
-    }
 
     public async writeToSheets(message: string, type: string) {
         const currentDate = new Date().toISOString().split('T')[0]
@@ -115,7 +96,7 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
                     spreadsheetId: process.env.SPREADSHEET_ID,
                     range: "INPS!I3:L3",
                     valueInputOption: "USER_ENTERED",
-                    insertDataOption: "INSERT_ROWS",
+                    insertDataOption: "OVERWRITE",
                     responseValueRenderOption: "UNFORMATTED_VALUE",
                     requestBody: {
                         values: values,
@@ -146,7 +127,7 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
                     spreadsheetId: process.env.SPREADSHEET_ID,
                     range: "INPS!N3:Q3",
                     valueInputOption: "USER_ENTERED",
-                    insertDataOption: "INSERT_ROWS",
+                    insertDataOption: "OVERWRITE",
                     responseValueRenderOption: "UNFORMATTED_VALUE",
                     requestBody: {
                         values: values,
