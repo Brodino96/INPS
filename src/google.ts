@@ -72,6 +72,23 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
             version: "v4",
             auth: this.oauth2Client
         })
+
+        try {
+            await this.sheet.spreadsheets.values.append({
+                spreadsheetId: process.env.SPREADSHEET_ID,
+                range: "INPS!T3:U3",
+                valueInputOption: "USER_ENTERED",
+                insertDataOption: "OVERWRITE",
+                responseValueRenderOption: "UNFORMATTED_VALUE",
+                requestBody: {
+                    values: [[ "ciao", "duce" ]],
+                },
+            }, {});
+    
+            console.log("Dati aggiunti correttamente!");
+        } catch (error) {
+            console.error("Errore durante l'inserimento dei dati:", error);
+        }
     }
 
     public async writeToSheets(message: string, type: string) {
