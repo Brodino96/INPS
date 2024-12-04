@@ -22,10 +22,22 @@ class App {
     public async init() {
         await this.authenticate();
         this.discordBot.addEventListener("newInvoice", ({detail})=>{
-            this.googleSheetApi.writeToSheets(detail, "invoice")
+            this.googleSheetApi.writeToSheets(detail.text, "invoice")
+            .then(()=>{
+                this.discordBot.react(detail.message, "🟢")
+            })
+            .catch(()=>{
+                this.discordBot.react(detail.message, "🔴")
+            })
         })
         this.discordBot.addEventListener("newBlip", ({detail})=> {
-            this.googleSheetApi.writeToSheets(detail, "blip")
+            this.googleSheetApi.writeToSheets(detail.text, "blip")
+            .then((e)=>{
+                this.discordBot.react(detail.message, "🟢")
+            })
+            .catch((e)=>{
+                this.discordBot.react(detail.message, "🔴")
+            })
         })
         await this.httpServer.listen({
             port: 8080,

@@ -4,6 +4,7 @@ import { google, type sheets_v4 } from "googleapis"
 import fs from "fs/promises"
 import {FastifyInstance} from "fastify";
 import { type OAuth2Client } from "google-auth-library"
+import { Message } from "discord.js-selfbot-v13";
 
 // -------------------------------------------------------------------- //
 
@@ -74,17 +75,17 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
         })
     }
 
-    public async writeToSheets(message: string, type: string) {
+    public async writeToSheets(text: string, type: string) {
         const currentDate = new Date().toISOString().split('T')[0]
         let regex: RegExp
     
         if (type === "invoice") {
     
             regex = /(.*?) ha pagato una fattura di ([\d.]+)\$ del giorno (\d{2}\/\d{2}\/\d{4}) \| (\d{2}:\d{2})/
-            const match = message.match(regex)
+            const match = text.match(regex)
     
             if (!match) { 
-                throw `# Errore\nMessaggio non valido per la tabella "fatture": \`${message}\``;
+                throw `# Errore\nMessaggio non valido per la tabella "fatture": \`${text}\``;
             }
     
             const [_, name, price, , time] = match
@@ -111,10 +112,10 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
         } else if (type === "blip") {
             
             regex = /Hanno comprato (\d+)x di (.*?) per ([\d.]+)\$/
-            const match = message.match(regex)
+            const match = text.match(regex)
     
             if (!match) { 
-                throw `# Errore\nMessaggio non valido per la tabella "blip": \`${message}\``;
+                throw `# Errore\nMessaggio non valido per la tabella "blip": \`${text}\``;
             }
     
             const [_, quantity, item, price] = match
