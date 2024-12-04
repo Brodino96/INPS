@@ -107,6 +107,7 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
                 console.log("Dati aggiunti correttamente!");
             } catch (error) {
                 console.error("Errore durante l'inserimento dei dati:", error);
+                throw error
             }
     
         } else if (type === "blip") {
@@ -138,6 +139,7 @@ export class SheetsGoogleApi extends AuthenticatedGoogleApi {
                 console.log("Dati aggiunti correttamente!")
             } catch (error) {
                 console.error("Errore durante l'inserimento dei dati:", error)
+                throw error
             }
         }
     }
