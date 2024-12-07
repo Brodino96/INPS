@@ -1,4 +1,4 @@
-import { Client, Message, Snowflake, TextChannel } from "discord.js-selfbot-v13" // discord bot
+import { Client, Message, TextChannel } from "discord.js-selfbot-v13" // discord bot
 import { TypedEventTarget } from 'typescript-event-target';
 
 const fatture_channel: string = process.env.FATTURE_ID!

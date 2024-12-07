@@ -2,9 +2,8 @@
 
 import { google, type sheets_v4 } from "googleapis"
 import fs from "fs/promises"
-import {FastifyInstance} from "fastify";
+import { FastifyInstance } from "fastify";
 import { type OAuth2Client } from "google-auth-library"
-import { Message } from "discord.js-selfbot-v13";
 
 // -------------------------------------------------------------------- //
 
